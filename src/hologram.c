@@ -8,7 +8,12 @@
 
 static int gemsocket_fd = -1;
 
-boolean has_hologram(struct obj *tgem)
+/**
+ *
+ * @returns 1 if OK to read, 0 if not,
+ *          -1 if can't connect
+ */
+int has_hologram(struct obj *tgem)
 {
     if (tgem->spe >= 0) {
         struct sockaddr_un addr;
@@ -20,7 +25,7 @@ boolean has_hologram(struct obj *tgem)
          */
         gemsocket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
         if (gemsocket_fd < 0) {
-            return 0;
+            return -1;
         }
 
         memset(&addr, 0, sizeof(addr));
@@ -30,7 +35,7 @@ boolean has_hologram(struct obj *tgem)
         if(connect(gemsocket_fd,
                    (struct sockaddr *)&addr,
                    sizeof(struct sockaddr_un)) != 0) {
-            return 0;
+            return -1;
         }
         memset(buf, 0, sizeof(buf));
         /* read challenge packet */
@@ -39,14 +44,14 @@ boolean has_hologram(struct obj *tgem)
             /* TODO */
         } else {
             close(gemsocket_fd);
-            return 0;
+            return -1;
         }
 
         /* write response packet */
         /* TODO */
         if (write(gemsocket_fd, buf, sizeof(buf)) < 0) {
             close(gemsocket_fd);
-            return 0;
+            return -1;
         }
 
         /* read success/fail */
@@ -55,14 +60,16 @@ boolean has_hologram(struct obj *tgem)
             /* TODO */
         } else {
             close(gemsocket_fd);
-            return 0;
+            return -1;
         }
 
         /* can only read once... */
         tgem->spe = -1;
+        return 1;
     }
 
-    return 1;
+    /* already read */
+    return 0;
 }
 
 void rdsh_getnextkey(char *rbuf, size_t buflen)

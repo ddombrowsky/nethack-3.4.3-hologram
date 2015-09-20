@@ -1976,12 +1976,15 @@ STATIC_OVL void
 use_gem(tgem)
 struct obj *tgem;
 {
+    int c;
+
     if (Blind) {
         pline("Being blind, you cannot see anything.");
         return;
     }
 
-    if (has_hologram(tgem)) {
+    c = has_hologram(tgem);
+    if (c==1) {
         You("see a holographic image in the gem.  It reads:");
         if (wizard) {
             pline("0000000000000000000000000000000000:"
@@ -1991,6 +1994,11 @@ struct obj *tgem;
             rdsh_getnextkey(pkeybuf, sizeof(pkeybuf));
             pline(pkeybuf);
         }
+
+    } else if (c<0) {
+        /* can't connect to server */
+        You("feel like the gem is ignoring you.");
+
     } else {
         const char *fleck_color;
 
