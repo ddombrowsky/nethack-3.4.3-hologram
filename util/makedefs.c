@@ -1763,7 +1763,7 @@ do_objs()
 		    case GEM_CLASS:
 			/* avoid trouble with stupid C preprocessors */
 			if(objects[i].oc_material == GLASS) {
-			    Fprintf(ofp,"/* #define\t%s\t%d */\n",
+			    Fprintf(ofp,"#define\t%s\t%d\n",
 							objnam, i);
 			    prefix = -1;
 			    break;

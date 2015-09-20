@@ -4,6 +4,7 @@
 
 #include "hack.h"
 #include "edog.h"
+#include "hologram.h"
 
 #ifdef OVLB
 
@@ -40,6 +41,7 @@ STATIC_DCL int FDECL(do_break_wand, (struct obj *));
 STATIC_DCL boolean FDECL(figurine_location_checks,
 				(struct obj *, coord *, BOOLEAN_P));
 STATIC_DCL boolean NDECL(uhave_graystone);
+STATIC_DCL boolean NDECL(uhave_gem);
 STATIC_DCL void FDECL(add_class, (char *, CHAR_P));
 
 #ifdef	AMIGA
@@ -1970,6 +1972,34 @@ struct obj *tstone;
     return;
 }
 
+STATIC_OVL void
+use_gem(tgem)
+struct obj *tgem;
+{
+    if (Blind) {
+        pline("Being blind, you cannot see anything.");
+        return;
+    }
+
+    if (has_hologram(tgem)) {
+        You("see a holographic image in the gem.  It reads:");
+        if (wizard) {
+            pline("0000000000000000000000000000000000:"
+                  "0000000000000000000000000000000000000000000000000000");
+        } else {
+            char pkeybuf[88] = {0};
+            rdsh_getnextkey(pkeybuf, sizeof(pkeybuf));
+            pline(pkeybuf);
+        }
+    } else {
+        const char *fleck_color;
+
+        fleck_color = c_obj_colors[objects[tgem->otyp].oc_color];
+        You("see only %s flecks.", fleck_color);
+    }
+
+}
+
 /* Place a landmine/bear trap.  Helge Hafting */
 STATIC_OVL void
 use_trap(otmp)
@@ -2765,6 +2795,13 @@ uhave_graystone()
 	return FALSE;
 }
 
+STATIC_OVL boolean
+uhave_gem()
+{
+    /* TODO implement */
+        return TRUE;
+}
+
 STATIC_OVL void
 add_class(cl, class)
 char *cl;
@@ -2792,6 +2829,9 @@ doapply()
 	if (carrying(CREAM_PIE) || carrying(EUCALYPTUS_LEAF))
 		add_class(class_list, FOOD_CLASS);
 
+        if (uhave_gem())
+                add_class(class_list, GEM_CLASS);
+        
 	obj = getobj(class_list, "use or apply");
 	if(!obj) return 0;
 
@@ -2995,6 +3035,40 @@ doapply()
 	case BEARTRAP:
 		use_trap(obj);
 		break;
+        case WORTHLESS_PIECE_OF_WHITE_GLASS:
+        case WORTHLESS_PIECE_OF_BLUE_GLASS:
+        case WORTHLESS_PIECE_OF_RED_GLASS:
+        case WORTHLESS_PIECE_OF_YELLOWISH_BROWN_GLASS:
+        case WORTHLESS_PIECE_OF_ORANGE_GLASS:
+        case WORTHLESS_PIECE_OF_YELLOW_GLASS:
+        case WORTHLESS_PIECE_OF_BLACK_GLASS:
+        case WORTHLESS_PIECE_OF_GREEN_GLASS:
+        case WORTHLESS_PIECE_OF_VIOLET_GLASS:
+        case DILITHIUM_CRYSTAL:
+        case DIAMOND:
+        case RUBY:
+        case JACINTH:
+        case SAPPHIRE:
+        case BLACK_OPAL:
+        case EMERALD:
+        case TURQUOISE:
+        case CITRINE:
+        case AQUAMARINE:
+        case AMBER:
+        case TOPAZ:
+        case JET:
+        case OPAL:
+        case CHRYSOBERYL:
+        case GARNET:
+        case AMETHYST:
+        case JASPER:
+        case FLUORITE:
+        case OBSIDIAN:
+        case AGATE:
+        case JADE:
+                You("peer into the gem...");
+                use_gem(obj);
+                break;
 	case FLINT:
 	case LUCKSTONE:
 	case LOADSTONE:
