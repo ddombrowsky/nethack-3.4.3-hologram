@@ -144,3 +144,4 @@ util/lev_yacc.c
 util/makedefs
 util/recover
 tags
+rdsh/gemserver

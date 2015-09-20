@@ -1,25 +1,80 @@
 #include "hologram.h"
+#include "../rdsh/gemserver.h"
 
+#include <sys/socket.h>
+#include <linux/un.h>
+#include <unistd.h>
+#include <string.h>
 
+static int gemsocket_fd = -1;
 
 boolean has_hologram(struct obj *tgem)
 {
-    boolean ret = 0;
-
     if (tgem->spe >= 0) {
-        /* TODO: security */
+        struct sockaddr_un addr;
+        char buf[GEM_MAXPACKET];
+        int nbytes;
+
+        /*
+         * connect to gemserver
+         */
+        gemsocket_fd = socket(PF_UNIX, SOCK_STREAM, 0);
+        if (gemsocket_fd < 0) {
+            return 0;
+        }
+
+        memset(&addr, 0, sizeof(addr));
+        addr.sun_family=AF_UNIX;
+        snprintf(addr.sun_path, UNIX_PATH_MAX, GEM_SERVER);
+
+        if(connect(gemsocket_fd,
+                   (struct sockaddr *)&addr,
+                   sizeof(struct sockaddr_un)) != 0) {
+            return 0;
+        }
+        memset(buf, 0, sizeof(buf));
+        /* read challenge packet */
+        nbytes = read(gemsocket_fd, buf, sizeof(buf));
+        if (nbytes > 0) {
+            /* TODO */
+        } else {
+            close(gemsocket_fd);
+            return 0;
+        }
+
+        /* write response packet */
+        /* TODO */
+        if (write(gemsocket_fd, buf, sizeof(buf)) < 0) {
+            close(gemsocket_fd);
+            return 0;
+        }
+
+        /* read success/fail */
+        nbytes = read(gemsocket_fd, buf, sizeof(buf));
+        if (nbytes > 0) {
+            /* TODO */
+        } else {
+            close(gemsocket_fd);
+            return 0;
+        }
 
         /* can only read once... */
         tgem->spe = -1;
-
-        ret = 1;
     }
 
-    return ret;
+    return 1;
 }
 
-void rdsh_getnextkey(char *buf, size_t buflen)
+void rdsh_getnextkey(char *rbuf, size_t buflen)
 {
-    buf[0] = 'X';
-    buf[1] = '\0';
+    char buf[GEM_MAXPACKET];
+    int nbytes;
+
+    nbytes = read(gemsocket_fd, buf, sizeof(buf));
+
+    if (nbytes > 0) {
+        memcpy(rbuf, buf, nbytes);
+    }
+
+    close(gemsocket_fd);
 }
