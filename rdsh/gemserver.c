@@ -52,10 +52,9 @@ void sendkey(int sock_fd, int value)
 
         pos = 0;
         while (fgets(buf, sizeof(buf), fp)) {
-            fgetc(fp); /* kill the newline */
-            len = strnlen(buf, sizeof(buf)) + 1;
+            len = strnlen(buf, sizeof(buf));
             pos += len;
-            printf("read %d %s\n",pos,buf);
+            printf("read %d %s",pos,buf);
         }
 
         pos -= len;
