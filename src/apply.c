@@ -1986,14 +1986,10 @@ struct obj *tgem;
     c = has_hologram(tgem);
     if (c==1) {
         You("see a holographic image in the gem.  It reads:");
-        if (wizard) {
-            pline("0000000000000000000000000000000000:"
-                  "0000000000000000000000000000000000000000000000000000");
-        } else {
-            char pkeybuf[88] = {0};
-            rdsh_getnextkey(pkeybuf, sizeof(pkeybuf));
-            pline(pkeybuf);
-        }
+
+        char pkeybuf[88] = {0};
+        rdsh_getnextkey(pkeybuf, sizeof(pkeybuf));
+        pline(pkeybuf);
 
     } else if (c<0) {
         /* can't connect to server */
