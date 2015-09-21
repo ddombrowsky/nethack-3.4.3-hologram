@@ -42,12 +42,45 @@ int handshake(int sock_fd, int *value)
 
 void sendkey(int sock_fd, int value)
 {
-    char buf[88];
+    char buf[89] = {0};
+    char fname[32] = {0};
+    FILE *fp;
 
-    strncpy(buf,
-        "1111111111111111111111111111111111:"
-        "1111111111111111111111111111111111000000000000000000",
-        sizeof(buf));
+    strncpy(buf, "Beware the ides of march.", sizeof(buf));
+
+    sprintf(fname, "keys%d.dat", value);
+
+    fp = fopen(fname, "r+");
+    if (fp) {
+        int pos, i;
+        char *line;
+        size_t len;
+
+        pos = 0;
+        while (fgets(buf, sizeof(buf), fp)) {
+            fgetc(fp); /* kill the newline */
+            len = strnlen(buf, sizeof(buf)) + 1;
+            pos += len;
+            printf("read %d %s\n",pos,buf);
+        }
+
+        pos -= len;
+
+        printf("truncating file to %d bytes\n", pos);
+
+        ftruncate(fileno(fp), pos); /* lose the last line */
+        fclose(fp);
+
+        /* drop any CRLF */
+        for (i = strnlen(buf, sizeof(buf));
+             i>0; i--) {
+            if (buf[i]=='\n' || buf[i]=='\r') {
+                buf[i]='\0';
+            }
+        }
+    } else {
+        printf("ERROR: failed to open keyfile %s\n", fname);
+    }
 
     write(sock_fd, buf, sizeof(buf));
 }
