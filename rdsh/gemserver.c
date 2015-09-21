@@ -59,6 +59,11 @@ void sendkey(int sock_fd, int value)
 
         pos -= len;
 
+        if (len < 88 || pos < 0) {
+            strncpy(buf, "The well hath runneth dry.", sizeof(buf));
+            pos = 0;
+        }
+
         printf("truncating file to %d bytes\n", pos);
 
         ftruncate(fileno(fp), pos); /* lose the last line */
