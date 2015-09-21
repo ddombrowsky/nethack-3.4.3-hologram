@@ -19,13 +19,9 @@ int handshake(int sock_fd, int *value)
     /* TODO */
     nbytes = write(sock_fd, buf, sizeof(buf));
 
-    printf("wrote %d bytes\n", nbytes);
-
-     /* read response */
-    /* TODO */
+    /* read response */
+    /* TODO: this also specifies the value of the gem */
     nbytes = read(sock_fd, buf, sizeof(buf));
-
-    printf("read %d bytes\n", nbytes);
 
     if (nbytes > 0) {
         /* TODO */
@@ -33,8 +29,6 @@ int handshake(int sock_fd, int *value)
         success = true;
 
         nbytes = write(sock_fd, buf, sizeof(buf));
-
-        printf("wrote %d bytes\n", nbytes);
     }
 
     return success;
